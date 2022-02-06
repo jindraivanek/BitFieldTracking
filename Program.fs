@@ -50,7 +50,7 @@ type Benchmarks () =
 
         for i = 0 to testIndexes.Length - 1 do
             let testIndex = testIndexes[i]
-            if tracker.Contains testIndex then
+            if not(tracker.Contains testIndex) then
                 // Real world we would do work here and then flip the case
                 tracker <- tracker.Add testIndex
             else
@@ -64,7 +64,7 @@ type Benchmarks () =
 
         for i = 0 to testIndexes.Length - 1 do
             let testIndex = testIndexes[i]
-            if tracker.Contains testIndex then
+            if not(tracker.Contains testIndex) then
                 // Real world we would do work here and then flip the case
                 tracker.Add testIndex |> ignore
             else
@@ -93,7 +93,7 @@ type Benchmarks () =
         
         for i = 0 to testIndexes.Length - 1 do
             let testIndex = testIndexes[i]
-            if tracker.IsSet testIndex then
+            if tracker.IsSet testIndex = false then
                 // Real world we would do work here and then flip the case
                 tracker.Set testIndex
             else
@@ -113,7 +113,7 @@ type Benchmarks () =
             let int64Index = testIndex / bitsPerInt64
             let bitIndex = testIndex % bitsPerInt64
 
-            if (spanIndex[int64Index] &&& (1 <<< bitIndex)) <> 0 then
+            if (spanIndex[int64Index] &&& (1 <<< bitIndex)) = 0 then
                 // Real world we would do work here and then flip the case
                 spanIndex[int64Index] <- (1 <<< bitIndex) ||| spanIndex[int64Index]
             else
