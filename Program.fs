@@ -1,4 +1,5 @@
 ﻿open System
+open System.Collections
 open FSharp.NativeInterop
 open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Running
@@ -28,6 +29,9 @@ type Int64Tracker =
 
     member this.UnSet (position: int) =
         this.Value <- ~~~ (1 <<< position) &&& this.Value
+        
+    member this.Swap (position: int) =
+        this.Value <- (1 <<< position) ^^^ this.Value
 
 
 [<MemoryDiagnoser>]
@@ -98,6 +102,34 @@ type Benchmarks () =
                 tracker.Set testIndex
             else
                 tracker.UnSet testIndex
+
+        tracker
+        
+    [<Benchmark>]
+    member _.Int64TrackerXOR () =
+        let mutable tracker = Int64Tracker.Create ()
+        let mutable x = 0
+        for i = 0 to testIndexes.Length - 1 do
+            let testIndex = testIndexes[i]
+            if tracker.IsSet testIndex = false then
+                x <- x + 1 // dummy operation to avoid branch elimination
+                ()
+                // Real world we would do work here and then flip the case
+            tracker.Swap testIndex
+
+        tracker
+
+    [<Benchmark>]
+    member _.BitArrayTracker () =
+        let mutable tracker = BitArray(testIndexes.Length)
+        
+        for i = 0 to testIndexes.Length - 1 do
+            let testIndex = testIndexes[i]
+            if tracker.Get testIndex = false then
+                // Real world we would do work here and then flip the case
+                tracker.Set(testIndex, true)
+            else
+                tracker.Set(testIndex, false)
 
         tracker
 
